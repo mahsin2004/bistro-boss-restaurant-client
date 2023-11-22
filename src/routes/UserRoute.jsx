@@ -20,7 +20,7 @@ const UserRoute = ({ children }) => {
     return <Navigate to="/"></Navigate>;
   }
 
-  if (user) {
+  if(user){
     return children;
   }
 

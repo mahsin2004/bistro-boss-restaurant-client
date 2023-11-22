@@ -10,37 +10,53 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../config/firebase.config";
-import useCreateToken from "../hook/useCreateToken";
-
+import axios from "axios";
 
 export const AuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
-  const axiosToken = useCreateToken();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubScribe = onAuthStateChanged(auth, (currentUser) => {
+      const loggedUser = currentUser?.email || user?.email;
+      const userEmail = { email: loggedUser };
       setUser(currentUser);
-      const userEmail = {email: currentUser?.email}
-      if(currentUser){
-        axiosToken.post("/jwt", userEmail).then((res) => {
-          console.log(res.data);
-        });
+      console.log("current user", currentUser);
+      
+      // if user exists then issue a token
+      if (currentUser) {
+        axios
+          .post(
+            "https://bistro-boss-restaurant-server-ashy.vercel.app/jwt",
+            userEmail,
+            { withCredentials: true }
+          )
+          .then((res) => {
+            console.log("token response", res.data);
+            setLoading(false);
+          });
+      } else {
+        axios
+          .post(
+            "https://bistro-boss-restaurant-server-ashy.vercel.app/logout",
+            userEmail,
+            {
+              withCredentials: true,
+            }
+          )
+          .then((res) => {
+            console.log(res.data);
+            setLoading(false);
+          });
       }
-      else{
-        axiosToken.post("/tokenClear", userEmail).then((res) => {
-          console.log(res.data);
-        });
-      }
-      setLoading(false);
     });
     return () => {
       unsubScribe();
     };
-  }, [axiosToken]);
+  }, [user]);
 
   const googleUser = () => {
     setLoading(true);
@@ -68,8 +84,6 @@ const AuthProvider = ({ children }) => {
       photoURL: photo,
     });
   };
-
-  
 
   const Authentication = {
     googleUser,
