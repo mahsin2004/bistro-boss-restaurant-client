@@ -10,14 +10,14 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../config/firebase.config";
-import useAxiosSecure from "../hook/useAxiosSecure";
+import useCreateToken from "../hook/useCreateToken";
 
 
 export const AuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
-  const axiosSecure = useAxiosSecure();
+  const axiosToken = useCreateToken();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,12 +26,12 @@ const AuthProvider = ({ children }) => {
       setUser(currentUser);
       const userEmail = {email: currentUser?.email}
       if(currentUser){
-        axiosSecure.post("/jwt", userEmail).then((res) => {
+        axiosToken.post("/jwt", userEmail).then((res) => {
           console.log(res.data);
         });
       }
       else{
-        axiosSecure.post("/tokenClear", userEmail).then((res) => {
+        axiosToken.post("/tokenClear", userEmail).then((res) => {
           console.log(res.data);
         });
       }
@@ -40,7 +40,7 @@ const AuthProvider = ({ children }) => {
     return () => {
       unsubScribe();
     };
-  }, [axiosSecure]);
+  }, [axiosToken]);
 
   const googleUser = () => {
     setLoading(true);
