@@ -1,0 +1,12 @@
+
+.background-img{
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url("../../assets/home/chef-service.jpg");
+}
+.Features-bg{
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-blend-mode: color-burn;
+    background-image: url("../../assets/home/featured.jpg");
+}
